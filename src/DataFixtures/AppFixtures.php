@@ -781,6 +781,8 @@ class AppFixtures extends Fixture
             ['homepage.featuredLabs.title', ['hr' => 'Istaknuti projekti', 'en' => 'Featured Labs'], 'homepage'],
             ['homepage.featuredLabs.buttonText', ['hr' => 'Zatraži ponudu', 'en' => 'Request a quote'], 'homepage'],
             ['homepage.featuredLabs.description', ['hr' => 'Kreiramo različita rješenja, od interaktivnih iskustva do personaliziranih brend aktivacija. To je prostor u kojem isprobavamo, razvijamo i stvaramo kampanje koje ostavljaju trag.', 'en' => 'From interactive experiences to custom brand activations, it\'s where we test, create, and invent for the public space.'], 'homepage'],
+            ['homepage.featuredLabs.mode', ['value' => 'auto'], 'homepage'],
+            ['homepage.featuredLabs.selectedProjectIds', ['value' => []], 'homepage'],
             ['homepage.horizontalScroll.scrollLabel', ['hr' => 'Scroll', 'en' => 'Scroll'], 'homepage'],
             ['footer.rights', ['hr' => 'Sva prava pridržana', 'en' => 'All rights reserved'], 'footer'],
             ['footer.newsletter.title', ['hr' => 'Newsletter', 'en' => 'Newsletter'], 'footer'],
