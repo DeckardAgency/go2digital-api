@@ -1,0 +1,68 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Entity;
+
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use App\Entity\Translation\SeoMetadataTranslation;
+use App\Trait\TimestampableTrait;
+use App\Trait\TranslatableTrait;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Uid\Uuid;
+
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Get(),
+    ],
+)]
+#[ORM\Entity]
+#[ORM\Table(name: 'seo_metadata')]
+#[ORM\HasLifecycleCallbacks]
+class SeoMetadata
+{
+    use TimestampableTrait;
+    use TranslatableTrait;
+
+    #[ORM\Id]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    private ?Uuid $id = null;
+
+    #[ORM\ManyToOne(targetEntity: Media::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Media $ogImage = null;
+
+    /** @var Collection<int, SeoMetadataTranslation> */
+    #[ORM\OneToMany(targetEntity: SeoMetadataTranslation::class, mappedBy: 'translatable', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $translations;
+
+    public function __construct()
+    {
+        $this->translations = new ArrayCollection();
+    }
+
+    public function getId(): ?Uuid
+    {
+        return $this->id;
+    }
+
+    public function getOgImage(): ?Media
+    {
+        return $this->ogImage;
+    }
+
+    public function setOgImage(?Media $ogImage): static
+    {
+        $this->ogImage = $ogImage;
+
+        return $this;
+    }
+}

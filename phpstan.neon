@@ -1,0 +1,14 @@
+parameters:
+    level: 5
+    paths:
+        - src
+    excludePaths:
+        - src/Kernel.php
+    ignoreErrors:
+        # Doctrine UUID properties are assigned by the generator, not in code
+        - '#Property .+::\$id .+ is never assigned#'
+        # Doctrine properties with defaults that are always set
+        - '#Property .+::\$(collection|disk|category|group) .+ is never assigned null#'
+        # UserPasswordHasherInterface::upgradePassword calls setPassword on generic interface
+        - '#Call to an undefined method .+PasswordAuthenticatedUserInterface::setPassword#'
+    treatPhpDocTypesAsCertain: false

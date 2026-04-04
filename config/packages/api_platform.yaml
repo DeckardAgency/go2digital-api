@@ -1,0 +1,17 @@
+api_platform:
+    title: Go2Digital API
+    version: 1.0.0
+    defaults:
+        stateless: true
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin', 'Accept-Language']
+        paginationItemsPerPage: 12
+        paginationClientItemsPerPage: true
+        paginationMaximumItemsPerPage: 50
+    formats:
+        jsonld: ['application/ld+json']
+        json: ['application/json']
+    docs_formats:
+        jsonld: ['application/ld+json']
+        jsonopenapi: ['application/vnd.openapi+json']
+        html: ['text/html']
