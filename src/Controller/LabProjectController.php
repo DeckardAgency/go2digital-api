@@ -8,6 +8,7 @@ use App\Entity\LabCategory;
 use App\Entity\LabProject;
 use App\Entity\Translation\LabProjectTranslation;
 use App\Enum\ContentStatus;
+use App\Service\MediaLibraryService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -121,6 +122,46 @@ class LabProjectController extends AbstractController
                 $translation->setBody($fields['body']);
             }
         }
+    }
+
+    #[Route('/api/lab-projects/{id}/image', name: 'api_lab_project_image', methods: ['POST'])]
+    #[IsGranted('ROLE_EDITOR')]
+    public function uploadImage(string $id, Request $request, MediaLibraryService $mediaLibrary): JsonResponse
+    {
+        $project = $this->em->getRepository(LabProject::class)->find(Uuid::fromRfc4122($id));
+        if (!$project) {
+            throw $this->createNotFoundException('Project not found');
+        }
+
+        $file = $request->files->get('image');
+        if (!$file) {
+            return $this->json(['error' => 'No image file provided'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $media = $mediaLibrary->upload($file, 'labs');
+        $project->setImage($media);
+        $this->em->flush();
+
+        return $this->json([
+            'success' => true,
+            'mediaId' => $media->getId()->toRfc4122(),
+            'imageUrl' => '/storage/media/' . $media->getPath(),
+        ]);
+    }
+
+    #[Route('/api/lab-projects/{id}/image', name: 'api_lab_project_image_remove', methods: ['DELETE'])]
+    #[IsGranted('ROLE_EDITOR')]
+    public function removeImage(string $id): JsonResponse
+    {
+        $project = $this->em->getRepository(LabProject::class)->find(Uuid::fromRfc4122($id));
+        if (!$project) {
+            throw $this->createNotFoundException('Project not found');
+        }
+
+        $project->setImage(null);
+        $this->em->flush();
+
+        return $this->json(['success' => true]);
     }
 
     private function serializeProject(LabProject $project, int $status = Response::HTTP_OK): JsonResponse

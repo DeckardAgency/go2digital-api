@@ -8,6 +8,7 @@ use App\Entity\BlogCategory;
 use App\Entity\BlogPost;
 use App\Entity\Translation\BlogPostTranslation;
 use App\Enum\ContentStatus;
+use App\Service\MediaLibraryService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -120,6 +121,46 @@ class BlogPostController extends AbstractController
                 $translation->setBody($fields['body']);
             }
         }
+    }
+
+    #[Route('/api/blog-posts/{id}/image', name: 'api_blog_post_image', methods: ['POST'])]
+    #[IsGranted('ROLE_EDITOR')]
+    public function uploadImage(string $id, Request $request, MediaLibraryService $mediaLibrary): JsonResponse
+    {
+        $post = $this->em->getRepository(BlogPost::class)->find(Uuid::fromRfc4122($id));
+        if (!$post) {
+            throw $this->createNotFoundException('Post not found');
+        }
+
+        $file = $request->files->get('image');
+        if (!$file) {
+            return $this->json(['error' => 'No image file provided'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $media = $mediaLibrary->upload($file, 'blog');
+        $post->setImage($media);
+        $this->em->flush();
+
+        return $this->json([
+            'success' => true,
+            'mediaId' => $media->getId()->toRfc4122(),
+            'imageUrl' => '/storage/media/' . $media->getPath(),
+        ]);
+    }
+
+    #[Route('/api/blog-posts/{id}/image', name: 'api_blog_post_image_remove', methods: ['DELETE'])]
+    #[IsGranted('ROLE_EDITOR')]
+    public function removeImage(string $id): JsonResponse
+    {
+        $post = $this->em->getRepository(BlogPost::class)->find(Uuid::fromRfc4122($id));
+        if (!$post) {
+            throw $this->createNotFoundException('Post not found');
+        }
+
+        $post->setImage(null);
+        $this->em->flush();
+
+        return $this->json(['success' => true]);
     }
 
     private function serializePost(BlogPost $post, int $status = Response::HTTP_OK): JsonResponse
