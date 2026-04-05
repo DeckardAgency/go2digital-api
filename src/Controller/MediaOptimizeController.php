@@ -45,13 +45,20 @@ class MediaOptimizeController extends AbstractController
         $quality = max(1, min(100, $quality));
 
         $originalPath = $this->mediaStoragePath . '/' . $media->getPath();
+
+        // Check if file exists, also try .webp variant (ThumbnailService may have already converted)
         if (!file_exists($originalPath)) {
-            return $this->json(['error' => 'Original file not found.'], 404);
+            $webpVariant = preg_replace('/\.[^.]+$/', '.webp', $originalPath);
+            if (file_exists($webpVariant)) {
+                $originalPath = $webpVariant;
+            } else {
+                return $this->json(['error' => 'Original file not found.'], 404);
+            }
         }
 
         $originalSize = filesize($originalPath);
 
-        // Convert to WebP
+        // If already WebP, just re-encode at the requested quality
         $manager = new ImageManager(new Driver());
         $image = $manager->read($originalPath);
 
@@ -61,8 +68,7 @@ class MediaOptimizeController extends AbstractController
         $image->toWebp(quality: $quality)->save($webpPath);
         $newSize = filesize($webpPath);
 
-        // If new file is at the same path (was already webp), just update size
-        // Otherwise remove old file and update entity
+        // Remove old file if it was a different format
         if ($originalPath !== $webpPath && file_exists($originalPath)) {
             unlink($originalPath);
         }
