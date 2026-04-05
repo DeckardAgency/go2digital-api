@@ -85,6 +85,9 @@ class BlogPostController extends AbstractController
         if (array_key_exists('featured', $data)) {
             $post->setFeatured((bool) $data['featured']);
         }
+        if (array_key_exists('sortOrder', $data)) {
+            $post->setSortOrder((int) $data['sortOrder']);
+        }
         if (array_key_exists('category', $data)) {
             if ($data['category']) {
                 try {

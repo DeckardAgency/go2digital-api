@@ -81,6 +81,9 @@ class BlogPost
     #[ORM\Column]
     private bool $featured = false;
 
+    #[ORM\Column(options: ['default' => 0])]
+    private int $sortOrder = 0;
+
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $layoutHint = null;
 
@@ -177,6 +180,9 @@ class BlogPost
 
         return $this;
     }
+
+    public function getSortOrder(): int { return $this->sortOrder; }
+    public function setSortOrder(int $sortOrder): static { $this->sortOrder = $sortOrder; return $this; }
 
     public function getLayoutHint(): ?string
     {
