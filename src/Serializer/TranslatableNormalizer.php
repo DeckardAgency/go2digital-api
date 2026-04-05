@@ -183,6 +183,7 @@ class TranslatableNormalizer implements NormalizerInterface, NormalizerAwareInte
                     'filename' => $media->getFilename(),
                     'originalFilename' => $media->getOriginalFilename(),
                     'mimeType' => $media->getMimeType(),
+                    'size' => (int) $media->getSize(),
                     'width' => $media->getWidth(),
                     'height' => $media->getHeight(),
                     'thumbnails' => $media->getThumbnails(),
