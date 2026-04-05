@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -17,6 +21,7 @@ class MaintenanceController extends AbstractController
 {
     public function __construct(
         private KernelInterface $kernel,
+        private UserPasswordHasherInterface $passwordHasher,
     ) {
     }
 
@@ -122,6 +127,40 @@ class MaintenanceController extends AbstractController
         }
 
         return $this->json($backups);
+    }
+
+    /**
+     * Download a backup file. Requires ROLE_SUPER_ADMIN + password confirmation.
+     */
+    #[Route('/database/backups/{filename}/download', name: 'api_maintenance_db_backup_download', methods: ['POST'])]
+    #[IsGranted('ROLE_SUPER_ADMIN')]
+    public function downloadBackup(string $filename, Request $request): BinaryFileResponse|JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $password = $data['password'] ?? '';
+
+        if (!$password) {
+            return $this->json(['error' => 'Password is required to download backups.'], 403);
+        }
+
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        if (!$this->passwordHasher->isPasswordValid($user, $password)) {
+            return $this->json(['error' => 'Invalid password.'], 403);
+        }
+
+        // Sanitize filename to prevent path traversal
+        $safeFilename = basename($filename);
+        $filepath = $this->kernel->getProjectDir() . '/var/backups/' . $safeFilename;
+
+        if (!file_exists($filepath) || !str_ends_with($safeFilename, '.sql')) {
+            return $this->json(['error' => 'Backup not found.'], 404);
+        }
+
+        $response = new BinaryFileResponse($filepath);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $safeFilename);
+
+        return $response;
     }
 
     #[Route('/info', name: 'api_maintenance_info', methods: ['GET'])]
