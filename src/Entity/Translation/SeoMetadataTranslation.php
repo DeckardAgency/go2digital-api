@@ -27,6 +27,7 @@ class SeoMetadataTranslation
     #[ORM\JoinColumn(name: 'translatable_id', nullable: false, onDelete: 'CASCADE')]
     private ?SeoMetadata $translatable = null;
 
+    // --- Core Meta ---
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $title = null;
 
@@ -36,44 +37,40 @@ class SeoMetadataTranslation
     #[ORM\Column(length: 500, nullable: true)]
     private ?string $keywords = null;
 
-    public function getId(): ?Uuid
-    {
-        return $this->id;
-    }
+    // --- Open Graph ---
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $ogTitle = null;
 
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $ogDescription = null;
 
-    public function setTitle(?string $title): static
-    {
-        $this->title = $title;
+    // --- Twitter ---
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $twitterTitle = null;
 
-        return $this;
-    }
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $twitterDescription = null;
 
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
+    public function getId(): ?Uuid { return $this->id; }
 
-    public function setDescription(?string $description): static
-    {
-        $this->description = $description;
+    public function getTitle(): ?string { return $this->title; }
+    public function setTitle(?string $v): static { $this->title = $v; return $this; }
 
-        return $this;
-    }
+    public function getDescription(): ?string { return $this->description; }
+    public function setDescription(?string $v): static { $this->description = $v; return $this; }
 
-    public function getKeywords(): ?string
-    {
-        return $this->keywords;
-    }
+    public function getKeywords(): ?string { return $this->keywords; }
+    public function setKeywords(?string $v): static { $this->keywords = $v; return $this; }
 
-    public function setKeywords(?string $keywords): static
-    {
-        $this->keywords = $keywords;
+    public function getOgTitle(): ?string { return $this->ogTitle; }
+    public function setOgTitle(?string $v): static { $this->ogTitle = $v; return $this; }
 
-        return $this;
-    }
+    public function getOgDescription(): ?string { return $this->ogDescription; }
+    public function setOgDescription(?string $v): static { $this->ogDescription = $v; return $this; }
+
+    public function getTwitterTitle(): ?string { return $this->twitterTitle; }
+    public function setTwitterTitle(?string $v): static { $this->twitterTitle = $v; return $this; }
+
+    public function getTwitterDescription(): ?string { return $this->twitterDescription; }
+    public function setTwitterDescription(?string $v): static { $this->twitterDescription = $v; return $this; }
 }

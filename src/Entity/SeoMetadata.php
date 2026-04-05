@@ -40,6 +40,24 @@ class SeoMetadata
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Media $ogImage = null;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $ogType = 'website';
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $twitterCard = 'summary_large_image';
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $canonicalUrl = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $robots = 'index, follow';
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $noIndex = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $noFollow = false;
+
     /** @var Collection<int, SeoMetadataTranslation> */
     #[ORM\OneToMany(targetEntity: SeoMetadataTranslation::class, mappedBy: 'translatable', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $translations;
@@ -49,20 +67,38 @@ class SeoMetadata
         $this->translations = new ArrayCollection();
     }
 
-    public function getId(): ?Uuid
-    {
-        return $this->id;
-    }
+    public function getId(): ?Uuid { return $this->id; }
 
-    public function getOgImage(): ?Media
-    {
-        return $this->ogImage;
-    }
+    public function getOgImage(): ?Media { return $this->ogImage; }
+    public function setOgImage(?Media $v): static { $this->ogImage = $v; return $this; }
 
-    public function setOgImage(?Media $ogImage): static
-    {
-        $this->ogImage = $ogImage;
+    public function getOgType(): ?string { return $this->ogType; }
+    public function setOgType(?string $v): static { $this->ogType = $v; return $this; }
 
-        return $this;
+    public function getTwitterCard(): ?string { return $this->twitterCard; }
+    public function setTwitterCard(?string $v): static { $this->twitterCard = $v; return $this; }
+
+    public function getCanonicalUrl(): ?string { return $this->canonicalUrl; }
+    public function setCanonicalUrl(?string $v): static { $this->canonicalUrl = $v; return $this; }
+
+    public function getRobots(): ?string { return $this->robots; }
+    public function setRobots(?string $v): static { $this->robots = $v; return $this; }
+
+    public function isNoIndex(): ?bool { return $this->noIndex; }
+    public function setNoIndex(?bool $v): static { $this->noIndex = $v; return $this; }
+
+    public function isNoFollow(): ?bool { return $this->noFollow; }
+    public function setNoFollow(?bool $v): static { $this->noFollow = $v; return $this; }
+
+    /**
+     * Build the robots directive string from noIndex/noFollow flags.
+     */
+    public function getRobotsDirective(): string
+    {
+        $parts = [];
+        $parts[] = $this->noIndex ? 'noindex' : 'index';
+        $parts[] = $this->noFollow ? 'nofollow' : 'follow';
+
+        return implode(', ', $parts);
     }
 }

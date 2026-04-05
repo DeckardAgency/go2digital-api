@@ -90,6 +90,10 @@ class Totem
     #[ORM\Column]
     private bool $isPublished = true;
 
+    #[ORM\OneToOne(targetEntity: SeoMetadata::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?SeoMetadata $seoMetadata = null;
+
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $manualOverrides = null;
 
@@ -148,6 +152,9 @@ class Totem
     public function setSortOrder(int $v): static { $this->sortOrder = $v; return $this; }
     public function isPublished(): bool { return $this->isPublished; }
     public function setIsPublished(bool $v): static { $this->isPublished = $v; return $this; }
+    public function getSeoMetadata(): ?SeoMetadata { return $this->seoMetadata; }
+    public function setSeoMetadata(?SeoMetadata $v): static { $this->seoMetadata = $v; return $this; }
+
     public function getManualOverrides(): ?array { return $this->manualOverrides; }
     public function setManualOverrides(?array $v): static { $this->manualOverrides = $v; return $this; }
     public function getLastSyncedAt(): ?\DateTimeImmutable { return $this->lastSyncedAt; }
