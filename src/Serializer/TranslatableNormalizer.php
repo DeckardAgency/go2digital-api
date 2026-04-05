@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Serializer;
 
+use App\Entity\Media;
 use App\Trait\TranslatableTrait;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
@@ -58,6 +59,9 @@ class TranslatableNormalizer implements NormalizerInterface, NormalizerAwareInte
 
         // Remove raw translations collection from serialized output
         unset($data['translations']);
+
+        // Expand image relation if it's an IRI string
+        $this->expandMediaRelations($object, $data);
 
         if ($includeTranslations) {
             // CMS mode: nest all translations by locale
@@ -152,6 +156,41 @@ class TranslatableNormalizer implements NormalizerInterface, NormalizerAwareInte
         }
 
         return $result;
+    }
+
+    /**
+     * Expand Media relations from IRI strings to full objects.
+     */
+    private function expandMediaRelations(object $entity, array &$data): void
+    {
+        $reflection = new \ReflectionClass($entity);
+
+        foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
+            $name = $method->getName();
+            if (!str_starts_with($name, 'get') || $method->getNumberOfRequiredParameters() > 0) continue;
+
+            $returnType = $method->getReturnType();
+            if (!$returnType instanceof \ReflectionNamedType) continue;
+            if ($returnType->getName() !== Media::class) continue;
+
+            $fieldName = lcfirst(substr($name, 3));
+            $media = $method->invoke($entity);
+
+            if ($media instanceof Media) {
+                $data[$fieldName] = [
+                    'id' => $media->getId()->toRfc4122(),
+                    'path' => $media->getPath(),
+                    'filename' => $media->getFilename(),
+                    'originalFilename' => $media->getOriginalFilename(),
+                    'mimeType' => $media->getMimeType(),
+                    'width' => $media->getWidth(),
+                    'height' => $media->getHeight(),
+                    'thumbnails' => $media->getThumbnails(),
+                    'focalX' => $media->getFocalX(),
+                    'focalY' => $media->getFocalY(),
+                ];
+            }
+        }
     }
 
     /**
