@@ -87,13 +87,16 @@ class BlogPostController extends AbstractController
         }
         if (array_key_exists('category', $data)) {
             if ($data['category']) {
-                // Handle IRI string like "/api/blog_categories/uuid"
-                $catId = $data['category'];
-                if (str_contains($catId, '/')) {
-                    $catId = basename($catId);
+                try {
+                    $catId = $data['category'];
+                    if (str_contains($catId, '/')) {
+                        $catId = basename($catId);
+                    }
+                    $category = $this->em->getRepository(BlogCategory::class)->find(Uuid::fromRfc4122($catId));
+                    $post->setCategory($category);
+                } catch (\Exception) {
+                    // Invalid category ID — skip
                 }
-                $category = $this->em->getRepository(BlogCategory::class)->find(Uuid::fromRfc4122($catId));
-                $post->setCategory($category);
             } else {
                 $post->setCategory(null);
             }

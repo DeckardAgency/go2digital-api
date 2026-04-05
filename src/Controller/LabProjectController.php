@@ -86,13 +86,20 @@ class LabProjectController extends AbstractController
             }
             // Add new categories from IRI strings or UUIDs
             foreach ($data['categories'] as $catRef) {
+                if (empty($catRef)) {
+                    continue;
+                }
                 $catId = $catRef;
                 if (str_contains($catId, '/')) {
                     $catId = basename($catId);
                 }
-                $category = $this->em->getRepository(LabCategory::class)->find(Uuid::fromRfc4122($catId));
-                if ($category) {
-                    $project->addCategory($category);
+                try {
+                    $category = $this->em->getRepository(LabCategory::class)->find(Uuid::fromRfc4122($catId));
+                    if ($category) {
+                        $project->addCategory($category);
+                    }
+                } catch (\Exception) {
+                    continue;
                 }
             }
         }
