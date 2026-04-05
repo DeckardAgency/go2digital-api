@@ -90,6 +90,8 @@ class FeaturedLabsController extends AbstractController
                 'title' => $translation?->getTitle() ?? '',
                 'shortTitle' => $translation?->getShortTitle() ?? '',
                 'subtitle' => $translation?->getSubtitle() ?? '',
+                'body' => $translation?->getBody() ?? '',
+                'sections' => $translation?->getSections() ?? [],
                 'image' => $image ? [
                     'id' => $image->getId()->toRfc4122(),
                     'path' => $image->getPath(),
