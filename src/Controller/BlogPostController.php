@@ -151,6 +151,24 @@ class BlogPostController extends AbstractController
         ]);
     }
 
+    #[Route('/api/blog-posts/{id}/focal-point', name: 'api_blog_post_focal_point', methods: ['PUT'])]
+    #[IsGranted('ROLE_EDITOR')]
+    public function updateFocalPoint(string $id, Request $request): JsonResponse
+    {
+        $post = $this->em->getRepository(BlogPost::class)->find(Uuid::fromRfc4122($id));
+        if (!$post || !$post->getImage()) {
+            throw $this->createNotFoundException('Post or image not found');
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $media = $post->getImage();
+        $media->setFocalX((float) ($data['x'] ?? 50));
+        $media->setFocalY((float) ($data['y'] ?? 50));
+        $this->em->flush();
+
+        return $this->json(['success' => true, 'focalX' => $media->getFocalX(), 'focalY' => $media->getFocalY()]);
+    }
+
     #[Route('/api/blog-posts/{id}/image', name: 'api_blog_post_image_remove', methods: ['DELETE'])]
     #[IsGranted('ROLE_EDITOR')]
     public function removeImage(string $id): JsonResponse

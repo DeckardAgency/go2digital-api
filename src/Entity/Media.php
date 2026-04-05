@@ -88,6 +88,12 @@ class Media
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $thumbnails = null;
 
+    #[ORM\Column(type: Types::FLOAT, nullable: true)]
+    private ?float $focalX = 50;
+
+    #[ORM\Column(type: Types::FLOAT, nullable: true)]
+    private ?float $focalY = 50;
+
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?User $uploadedBy = null;
@@ -246,6 +252,30 @@ class Media
     public function setUploadedBy(?User $uploadedBy): static
     {
         $this->uploadedBy = $uploadedBy;
+
+        return $this;
+    }
+
+    public function getFocalX(): ?float
+    {
+        return $this->focalX;
+    }
+
+    public function setFocalX(?float $focalX): static
+    {
+        $this->focalX = $focalX;
+
+        return $this;
+    }
+
+    public function getFocalY(): ?float
+    {
+        return $this->focalY;
+    }
+
+    public function setFocalY(?float $focalY): static
+    {
+        $this->focalY = $focalY;
 
         return $this;
     }

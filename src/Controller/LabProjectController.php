@@ -156,6 +156,24 @@ class LabProjectController extends AbstractController
         ]);
     }
 
+    #[Route('/api/lab-projects/{id}/focal-point', name: 'api_lab_project_focal_point', methods: ['PUT'])]
+    #[IsGranted('ROLE_EDITOR')]
+    public function updateFocalPoint(string $id, Request $request): JsonResponse
+    {
+        $project = $this->em->getRepository(LabProject::class)->find(Uuid::fromRfc4122($id));
+        if (!$project || !$project->getImage()) {
+            throw $this->createNotFoundException('Project or image not found');
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $media = $project->getImage();
+        $media->setFocalX((float) ($data['x'] ?? 50));
+        $media->setFocalY((float) ($data['y'] ?? 50));
+        $this->em->flush();
+
+        return $this->json(['success' => true, 'focalX' => $media->getFocalX(), 'focalY' => $media->getFocalY()]);
+    }
+
     #[Route('/api/lab-projects/{id}/image', name: 'api_lab_project_image_remove', methods: ['DELETE'])]
     #[IsGranted('ROLE_EDITOR')]
     public function removeImage(string $id): JsonResponse
