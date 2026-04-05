@@ -787,6 +787,12 @@ class AppFixtures extends Fixture
             ['footer.rights', ['hr' => 'Sva prava pridržana', 'en' => 'All rights reserved'], 'footer'],
             ['footer.newsletter.title', ['hr' => 'Newsletter', 'en' => 'Newsletter'], 'footer'],
             ['footer.newsletter.description', ['hr' => 'Bez spama, obećavamo. Možete se odjaviti bilo kada.', 'en' => 'No spam, we promise. You can unsubscribe anytime.'], 'footer'],
+            // SEO global defaults
+            ['seo.siteName', ['value' => 'Go2Digital'], 'seo'],
+            ['seo.titleSeparator', ['value' => '|'], 'seo'],
+            ['seo.defaultDescription', ['hr' => 'Go2Digital - Digitalna agencija za DOOH oglašavanje', 'en' => 'Go2Digital - Digital agency for DOOH advertising'], 'seo'],
+            ['seo.defaultOgImage', ['value' => ''], 'seo'],
+            ['seo.twitterHandle', ['value' => '@go2digital'], 'seo'],
         ];
 
         foreach ($settings as [$key, $value, $group]) {
