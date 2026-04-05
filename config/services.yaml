@@ -35,6 +35,10 @@ services:
         arguments:
             $filesStoragePath: '%app.files_storage_path%'
 
+    App\Controller\MediaOptimizeController:
+        arguments:
+            $mediaStoragePath: '%app.media_storage_path%'
+
     App\Service\SeoGeneratorService:
         arguments:
             $anthropicApiKey: '%env(ANTHROPIC_API_KEY)%'
