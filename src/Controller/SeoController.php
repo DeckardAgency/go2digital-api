@@ -15,6 +15,7 @@ use App\Entity\SeoMetadata;
 use App\Entity\TeamPageContent;
 use App\Entity\Totem;
 use App\Entity\Translation\SeoMetadataTranslation;
+use App\Service\SeoGeneratorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -39,6 +40,7 @@ class SeoController extends AbstractController
 
     public function __construct(
         private EntityManagerInterface $em,
+        private SeoGeneratorService $seoGenerator,
     ) {
     }
 
@@ -193,6 +195,32 @@ class SeoController extends AbstractController
 
         $this->em->flush();
         return $this->json(['success' => true]);
+    }
+
+    /**
+     * Generate SEO metadata using AI.
+     * POST /api/seo/generate
+     */
+    #[Route('/api/seo/generate', name: 'api_seo_generate', methods: ['POST'])]
+    #[IsGranted('ROLE_EDITOR')]
+    public function generate(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $entityType = $data['entityType'] ?? 'page';
+        $locales = $data['locales'] ?? [['code' => 'hr', 'label' => 'Hrvatski'], ['code' => 'en', 'label' => 'English']];
+        $content = $data['content'] ?? [];
+        $siteName = $data['siteName'] ?? 'Go2Digital';
+
+        try {
+            $result = $this->seoGenerator->generate($entityType, $locales, $content, $siteName);
+            return $this->json($result);
+        } catch (\Throwable $e) {
+            return $this->json(
+                ['error' => $e->getMessage()],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
     }
 
     private function findSingleton(string $pageType): object

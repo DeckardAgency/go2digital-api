@@ -34,3 +34,7 @@ services:
     App\Service\FileUploadService:
         arguments:
             $filesStoragePath: '%app.files_storage_path%'
+
+    App\Service\SeoGeneratorService:
+        arguments:
+            $anthropicApiKey: '%env(ANTHROPIC_API_KEY)%'
