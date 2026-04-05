@@ -4,14 +4,35 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Entity\Setting;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class SeoGeneratorService
 {
     public function __construct(
         private HttpClientInterface $httpClient,
+        private EntityManagerInterface $em,
         private string $anthropicApiKey,
     ) {
+    }
+
+    private function resolveApiKey(): string
+    {
+        // 1. Try database setting first (editable via CMS)
+        $setting = $this->em->getRepository(Setting::class)->findOneBy(['key' => 'integrations.anthropicApiKey']);
+        if ($setting) {
+            $val = $setting->getValue();
+            $key = $val['value'] ?? '';
+            if ($key) return $key;
+        }
+
+        // 2. Fall back to env var
+        if ($this->anthropicApiKey) {
+            return $this->anthropicApiKey;
+        }
+
+        throw new \RuntimeException('Anthropic API key is not configured. Set it in Settings > Integrations or in .env.');
     }
 
     /**
@@ -26,9 +47,7 @@ class SeoGeneratorService
      */
     public function generate(string $entityType, array $locales, array $content, string $siteName = 'Go2Digital'): array
     {
-        if (!$this->anthropicApiKey) {
-            throw new \RuntimeException('ANTHROPIC_API_KEY is not configured.');
-        }
+        $apiKey = $this->resolveApiKey();
 
         $localeList = implode(', ', array_map(fn($l) => "{$l['code']} ({$l['label']})", $locales));
         $localeCodes = array_map(fn($l) => $l['code'], $locales);
@@ -65,7 +84,7 @@ PROMPT;
 
         $response = $this->httpClient->request('POST', 'https://api.anthropic.com/v1/messages', [
             'headers' => [
-                'x-api-key' => $this->anthropicApiKey,
+                'x-api-key' => $apiKey,
                 'anthropic-version' => '2023-06-01',
                 'content-type' => 'application/json',
             ],

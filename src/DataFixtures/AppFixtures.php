@@ -787,12 +787,28 @@ class AppFixtures extends Fixture
             ['footer.rights', ['hr' => 'Sva prava pridržana', 'en' => 'All rights reserved'], 'footer'],
             ['footer.newsletter.title', ['hr' => 'Newsletter', 'en' => 'Newsletter'], 'footer'],
             ['footer.newsletter.description', ['hr' => 'Bez spama, obećavamo. Možete se odjaviti bilo kada.', 'en' => 'No spam, we promise. You can unsubscribe anytime.'], 'footer'],
+            // General
+            ['general.siteName', ['value' => 'Go2Digital'], 'general'],
+            ['general.siteUrl', ['value' => 'https://go2digital.hr'], 'general'],
+            ['general.contactEmail', ['value' => 'info@go2digital.hr'], 'general'],
+            ['general.copyrightHolder', ['value' => 'Go2Digital d.o.o.'], 'general'],
+            ['general.defaultLocale', ['value' => 'hr'], 'general'],
+            ['general.supportedLocales', ['value' => 'hr,en'], 'general'],
+            // Integrations
+            ['integrations.anthropicApiKey', ['value' => ''], 'integrations'],
+            ['integrations.gtmId', ['value' => ''], 'integrations'],
+            ['integrations.gaId', ['value' => ''], 'integrations'],
+            ['integrations.fbPixelId', ['value' => ''], 'integrations'],
+            ['integrations.hotjarId', ['value' => ''], 'integrations'],
+            ['integrations.recaptchaSiteKey', ['value' => ''], 'integrations'],
+            ['integrations.recaptchaSecretKey', ['value' => ''], 'integrations'],
             // SEO global defaults
             ['seo.siteName', ['value' => 'Go2Digital'], 'seo'],
             ['seo.titleSeparator', ['value' => '|'], 'seo'],
             ['seo.defaultDescription', ['hr' => 'Go2Digital - Digitalna agencija za DOOH oglašavanje', 'en' => 'Go2Digital - Digital agency for DOOH advertising'], 'seo'],
             ['seo.defaultOgImage', ['value' => ''], 'seo'],
             ['seo.twitterHandle', ['value' => '@go2digital'], 'seo'],
+            ['seo.robotsTxt', ['value' => "User-agent: *\nAllow: /\nSitemap: https://go2digital.hr/sitemap.xml"], 'seo'],
         ];
 
         foreach ($settings as [$key, $value, $group]) {
