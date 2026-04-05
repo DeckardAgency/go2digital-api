@@ -19,8 +19,14 @@ class MediaServeController extends AbstractController
     {
         $fullPath = $this->getParameter('app.media_storage_path').'/'.$path;
 
+        // Fallback: if file not found, try .webp variant (ThumbnailService may have converted)
         if (!file_exists($fullPath)) {
-            throw $this->createNotFoundException('Media file not found.');
+            $webpPath = preg_replace('/\.[^.]+$/', '.webp', $fullPath);
+            if (file_exists($webpPath)) {
+                $fullPath = $webpPath;
+            } else {
+                throw $this->createNotFoundException('Media file not found.');
+            }
         }
 
         return new BinaryFileResponse($fullPath);
