@@ -71,7 +71,7 @@ class MediaOptimizeController extends AbstractController
         $media->setPath($webpRelative);
         $media->setFilename(pathinfo($webpRelative, PATHINFO_BASENAME));
         $media->setMimeType('image/webp');
-        $media->setSize($newSize);
+        $media->setSize((string) $newSize);
 
         // Update dimensions
         $info = $image->size();
