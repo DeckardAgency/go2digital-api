@@ -113,6 +113,7 @@ class AppFixtures extends Fixture
     private function loadUsers(ObjectManager $manager): void
     {
         foreach ([
+            ['nikola@ngrdanjski.com', 'LaniakeaSC1988', 'Nikola', 'Grdanjski', ['ROLE_SUPER_ADMIN']],
             ['admin@go2digital.hr', 'admin123', 'Admin', 'Go2Digital', ['ROLE_SUPER_ADMIN']],
             ['editor@go2digital.hr', 'editor123', 'Editor', 'Go2Digital', ['ROLE_EDITOR']],
         ] as [$email, $pass, $first, $last, $roles]) {
