@@ -16,11 +16,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class LocationController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $em,
+        private HttpClientInterface $httpClient,
     ) {
     }
 
@@ -125,6 +127,86 @@ class LocationController extends AbstractController
             'success' => false,
             'error' => $log->getError(),
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Sync a single totem from CDN by its cdnTotemId.
+     */
+    #[Route('/api/locations/totems/{id}/sync', name: 'api_locations_totem_sync', methods: ['POST'])]
+    #[IsGranted('ROLE_EDITOR')]
+    public function syncSingleTotem(string $id): JsonResponse
+    {
+        $totem = $this->em->getRepository(Totem::class)->find(Uuid::fromRfc4122($id));
+        if (!$totem) {
+            throw $this->createNotFoundException('Totem not found');
+        }
+
+        try {
+            $response = $this->httpClient->request('GET', 'https://cdn.go2digital.hr/loc.json');
+            $cdnData = $response->toArray();
+
+            $cdnTotemId = $totem->getCdnTotemId();
+            $found = false;
+
+            foreach ($cdnData as $cityData) {
+                foreach ($cityData['totems'] ?? [] as $totemData) {
+                    if (($totemData['totem_id'] ?? 0) === $cdnTotemId) {
+                        // Update all non-overridden fields
+                        $fields = [
+                            'name' => $totemData['name'] ?? '',
+                            'nameEn' => $totemData['name_en'] ?? null,
+                            'totemType' => $totemData['totem_type'] ?? null,
+                            'location' => $totemData['location'] ?? null,
+                            'screens' => $totemData['screens'] ?? 1,
+                            'headerImage' => $totemData['header_image'] ?? null,
+                            'isInstalled' => $totemData['is_installed'] ?? true,
+                            'isBigScreen' => $totemData['is_big_screen'] ?? false,
+                            'screenWidth' => $totemData['screen_width'] ?? 0,
+                            'screenHeight' => $totemData['screen_height'] ?? 0,
+                            'postbuyCategory' => $totemData['postbuy_category'] ?? null,
+                            'adDuration' => $totemData['ad_duration'] ?? 10,
+                            'description' => $totemData['description'] ?? null,
+                            'descriptionEn' => $totemData['description_en'] ?? null,
+                            'reach' => $totemData['reach'] ?? 0,
+                            'videoUrl' => $totemData['video_url'] ?? null,
+                            'totemMotion' => $totemData['totem_motion'] ?? null,
+                        ];
+
+                        $updated = [];
+                        foreach ($fields as $field => $value) {
+                            if (!$totem->isManuallyOverridden($field)) {
+                                $setter = 'set'.ucfirst($field);
+                                $totem->$setter($value);
+                                $updated[] = $field;
+                            }
+                        }
+
+                        $totem->setImages($totemData['images'] ?? null);
+                        $totem->setFloorPlans($totemData['floor_plans'] ?? null);
+                        $totem->setTotemScreens($totemData['totem_screens'] ?? null);
+                        $totem->setLastSyncedAt(new \DateTimeImmutable());
+
+                        $this->em->flush();
+                        $found = true;
+
+                        return $this->json([
+                            'success' => true,
+                            'updatedFields' => $updated,
+                            'skippedFields' => array_keys(array_filter($fields, fn ($f) => $totem->isManuallyOverridden($f), ARRAY_FILTER_USE_KEY)),
+                            'syncedAt' => (new \DateTimeImmutable())->format('c'),
+                        ]);
+                    }
+                }
+            }
+
+            if (!$found) {
+                return $this->json(['success' => false, 'error' => 'Totem not found in CDN data'], Response::HTTP_NOT_FOUND);
+            }
+        } catch (\Exception $e) {
+            return $this->json(['success' => false, 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return $this->json(['success' => false]);
     }
 
     /**
