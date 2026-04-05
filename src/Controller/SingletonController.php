@@ -17,6 +17,8 @@ use App\Entity\HomepageTextAnimation;
 use App\Entity\HomepageWhySection;
 use App\Entity\LabPageContent;
 use App\Entity\TeamPageContent;
+use App\Entity\Media;
+use App\Service\MediaLibraryService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -137,6 +139,74 @@ class SingletonController extends AbstractController
         ]);
 
         return new JsonResponse($json, Response::HTTP_OK, [], true);
+    }
+
+    /**
+     * Upload a media file to a specific field on a singleton entity.
+     * E.g., POST /api/singletons/homepage-hero/media/video
+     *       POST /api/singletons/homepage-hero/media/mobileVideo
+     *       POST /api/singletons/homepage-custom-image/media/desktopImage
+     */
+    #[Route('/api/singletons/{type}/media/{field}', name: 'api_singleton_media_upload', methods: ['POST'])]
+    #[IsGranted('ROLE_EDITOR')]
+    public function uploadMedia(string $type, string $field, Request $request, MediaLibraryService $mediaLibrary): JsonResponse
+    {
+        $entityClass = $this->resolveEntityClass($type);
+        $entity = $this->em->getRepository($entityClass)->findOneBy([]);
+
+        if (null === $entity) {
+            return $this->json(['error' => 'Singleton not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $setter = 'set'.ucfirst($field);
+        if (!method_exists($entity, $setter)) {
+            return $this->json(['error' => sprintf('Field "%s" does not exist on %s', $field, $type)], Response::HTTP_BAD_REQUEST);
+        }
+
+        $file = $request->files->get('file');
+        if (!$file) {
+            return $this->json(['error' => 'No file provided'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $collection = str_contains($type, 'homepage') ? 'homepage' : 'general';
+        $media = $mediaLibrary->upload($file, $collection);
+        $entity->$setter($media);
+        $this->em->flush();
+
+        return $this->json([
+            'success' => true,
+            'field' => $field,
+            'mediaId' => $media->getId()->toRfc4122(),
+            'url' => '/storage/media/'.$media->getPath(),
+            'originalFilename' => $media->getOriginalFilename(),
+            'mimeType' => $media->getMimeType(),
+        ]);
+    }
+
+    /**
+     * Remove a media reference from a singleton field.
+     * E.g., DELETE /api/singletons/homepage-hero/media/video
+     */
+    #[Route('/api/singletons/{type}/media/{field}', name: 'api_singleton_media_remove', methods: ['DELETE'])]
+    #[IsGranted('ROLE_EDITOR')]
+    public function removeMedia(string $type, string $field): JsonResponse
+    {
+        $entityClass = $this->resolveEntityClass($type);
+        $entity = $this->em->getRepository($entityClass)->findOneBy([]);
+
+        if (null === $entity) {
+            return $this->json(['error' => 'Singleton not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $setter = 'set'.ucfirst($field);
+        if (!method_exists($entity, $setter)) {
+            return $this->json(['error' => sprintf('Field "%s" does not exist on %s', $field, $type)], Response::HTTP_BAD_REQUEST);
+        }
+
+        $entity->$setter(null);
+        $this->em->flush();
+
+        return $this->json(['success' => true]);
     }
 
     private function resolveEntityClass(string $type): string
