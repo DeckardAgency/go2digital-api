@@ -74,14 +74,44 @@ class FeaturedLabsController extends AbstractController
             }
         }
 
-        $json = $this->serializer->serialize([
-            'mode' => $mode,
-            'projects' => $projects,
-        ], 'json', [
-            'circular_reference_handler' => fn ($object) => $object->getId()?->toRfc4122(),
-        ]);
+        // Build response with resolved image URLs and translations
+        $locale = $request->headers->get('Accept-Language', 'hr');
+        $projectsData = [];
 
-        return new JsonResponse($json, Response::HTTP_OK, [], true);
+        foreach ($projects as $project) {
+            $translation = $project->translate($locale) ?? $project->translate('hr');
+            $image = $project->getImage();
+
+            $projectsData[] = [
+                'id' => $project->getId()->toRfc4122(),
+                'slug' => $project->getSlug(),
+                'featured' => $project->isFeatured(),
+                'status' => $project->getStatus()->value,
+                'title' => $translation?->getTitle() ?? '',
+                'shortTitle' => $translation?->getShortTitle() ?? '',
+                'subtitle' => $translation?->getSubtitle() ?? '',
+                'image' => $image ? [
+                    'id' => $image->getId()->toRfc4122(),
+                    'path' => $image->getPath(),
+                    'filename' => $image->getFilename(),
+                    'thumbnails' => $image->getThumbnails(),
+                    'focalX' => $image->getFocalX(),
+                    'focalY' => $image->getFocalY(),
+                ] : null,
+                'categories' => array_map(
+                    fn ($cat) => [
+                        'slug' => $cat->getSlug(),
+                        'name' => ($cat->translate($locale) ?? $cat->translate('hr'))?->getName() ?? $cat->getSlug(),
+                    ],
+                    $project->getCategories()->toArray()
+                ),
+            ];
+        }
+
+        return $this->json([
+            'mode' => $mode,
+            'projects' => $projectsData,
+        ]);
     }
 
     /**
