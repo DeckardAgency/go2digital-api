@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\City;
+use App\Entity\SyncLog;
 use App\Entity\Totem;
 use App\Service\LocationSyncService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -91,19 +92,59 @@ class LocationController extends AbstractController
     #[IsGranted('ROLE_ADMIN')]
     public function sync(LocationSyncService $syncService): JsonResponse
     {
+        $user = $this->getUser();
+        $start = microtime(true);
+
+        $log = new SyncLog();
+        $log->setTriggeredBy($user ? $user->getUserIdentifier() : 'system');
+
         try {
             $report = $syncService->sync();
+            $log->setSuccess(true);
+            $log->setReport($report);
+        } catch (\Exception $e) {
+            $log->setSuccess(false);
+            $log->setError($e->getMessage());
+            $log->setReport([]);
+        }
+
+        $log->setDurationMs(round((microtime(true) - $start) * 1000, 1));
+        $this->em->persist($log);
+        $this->em->flush();
+
+        if ($log->isSuccess()) {
             return $this->json([
                 'success' => true,
-                'report' => $report,
-                'syncedAt' => (new \DateTimeImmutable())->format('c'),
+                'report' => $log->getReport(),
+                'syncedAt' => $log->getCreatedAt()->format('c'),
+                'durationMs' => $log->getDurationMs(),
             ]);
-        } catch (\Exception $e) {
-            return $this->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        return $this->json([
+            'success' => false,
+            'error' => $log->getError(),
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * List sync logs.
+     */
+    #[Route('/api/locations/sync-logs', name: 'api_locations_sync_logs', methods: ['GET'])]
+    #[IsGranted('ROLE_EDITOR')]
+    public function syncLogs(): JsonResponse
+    {
+        $logs = $this->em->getRepository(SyncLog::class)->findBy([], ['createdAt' => 'DESC'], 50);
+
+        return $this->json(array_map(fn (SyncLog $log) => [
+            'id' => $log->getId()->toRfc4122(),
+            'success' => $log->isSuccess(),
+            'report' => $log->getReport(),
+            'error' => $log->getError(),
+            'durationMs' => $log->getDurationMs(),
+            'triggeredBy' => $log->getTriggeredBy(),
+            'createdAt' => $log->getCreatedAt()->format('c'),
+        ], $logs));
     }
 
     /**
