@@ -128,6 +128,9 @@ class LabProjectController extends AbstractController
             if (array_key_exists('body', $fields)) {
                 $translation->setBody($fields['body']);
             }
+            if (array_key_exists('sections', $fields)) {
+                $translation->setSections($fields['sections']);
+            }
         }
     }
 

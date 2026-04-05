@@ -42,6 +42,10 @@ class LabProjectTranslation
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $body = null;
 
+    /** @var array<array{label: string, content: string}> */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $sections = null;
+
     public function getId(): ?Uuid
     {
         return $this->id;
@@ -91,6 +95,18 @@ class LabProjectTranslation
     public function setBody(?string $body): static
     {
         $this->body = $body;
+
+        return $this;
+    }
+
+    public function getSections(): ?array
+    {
+        return $this->sections;
+    }
+
+    public function setSections(?array $sections): static
+    {
+        $this->sections = $sections;
 
         return $this;
     }
