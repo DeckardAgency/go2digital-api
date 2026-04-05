@@ -69,6 +69,69 @@ class AuthController extends AbstractController
             'lastName' => $user->getLastName(),
             'roles' => $user->getRoles(),
             'isActive' => $user->isActive(),
+            'createdAt' => $user->getCreatedAt()?->format('c'),
         ]);
+    }
+
+    /**
+     * Update current user's profile (name, email).
+     */
+    #[Route('/api/auth/profile', name: 'api_auth_profile_update', methods: ['PUT'])]
+    #[IsGranted('ROLE_USER')]
+    public function updateProfile(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $data = json_decode($request->getContent(), true);
+
+        if (isset($data['firstName'])) $user->setFirstName($data['firstName']);
+        if (isset($data['lastName'])) $user->setLastName($data['lastName']);
+
+        if (isset($data['email']) && $data['email'] !== $user->getEmail()) {
+            $existing = $this->em->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+            if ($existing) {
+                return $this->json(['error' => 'This email is already in use.'], 409);
+            }
+            $user->setEmail($data['email']);
+        }
+
+        $this->em->flush();
+
+        return $this->json([
+            'success' => true,
+            'id' => $user->getId()->toRfc4122(),
+            'email' => $user->getEmail(),
+            'firstName' => $user->getFirstName(),
+            'lastName' => $user->getLastName(),
+            'roles' => $user->getRoles(),
+        ]);
+    }
+
+    /**
+     * Change current user's password.
+     */
+    #[Route('/api/auth/change-password', name: 'api_auth_change_password', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function changePassword(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $data = json_decode($request->getContent(), true);
+
+        $currentPassword = $data['currentPassword'] ?? '';
+        $newPassword = $data['newPassword'] ?? '';
+
+        if (!$currentPassword || !$newPassword) {
+            return $this->json(['error' => 'Current and new password are required.'], 400);
+        }
+
+        if (!$this->passwordHasher->isPasswordValid($user, $currentPassword)) {
+            return $this->json(['error' => 'Current password is incorrect.'], 403);
+        }
+
+        $user->setPassword($this->passwordHasher->hashPassword($user, $newPassword));
+        $this->em->flush();
+
+        return $this->json(['success' => true]);
     }
 }
