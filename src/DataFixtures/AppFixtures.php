@@ -13,6 +13,7 @@ use App\Entity\EsgCard;
 use App\Entity\EsgPageContent;
 use App\Entity\EsgPillar;
 use App\Entity\EsgVisionBadge;
+use App\Entity\HomepageAnalytics;
 use App\Entity\HomepageBillboard;
 use App\Entity\HomepageCustomImage;
 use App\Entity\HomepageCustomSolution;
@@ -43,6 +44,7 @@ use App\Entity\Translation\EsgCardTranslation;
 use App\Entity\Translation\EsgPageContentTranslation;
 use App\Entity\Translation\EsgPillarTranslation;
 use App\Entity\Translation\EsgVisionBadgeTranslation;
+use App\Entity\Translation\HomepageAnalyticsTranslation;
 use App\Entity\Translation\HomepageBillboardTranslation;
 use App\Entity\Translation\HomepageCustomImageTranslation;
 use App\Entity\Translation\HomepageCustomSolutionTranslation;
@@ -90,6 +92,7 @@ class AppFixtures extends Fixture
         $this->loadHomepageHumanFocused($manager);
         $this->loadHomepageTextAnimation($manager);
         $this->loadHomepageBillboard($manager);
+        $this->loadHomepageAnalytics($manager);
         $this->loadHomepageTrackingFeatures($manager);
         $this->loadHomepageRentalsImage($manager);
         $this->loadHomepageProducts($manager);
@@ -322,6 +325,24 @@ class AppFixtures extends Fixture
             'imageAlt' => 'Go2Digital billboard on Radnička Road',
         ]);
         $manager->persist($bb);
+    }
+
+    // ─── HOMEPAGE ANALYTICS ────────────────────────────────
+
+    private function loadHomepageAnalytics(ObjectManager $manager): void
+    {
+        $a = new HomepageAnalytics();
+        $this->addTranslation($a, new HomepageAnalyticsTranslation(), 'hr', [
+            'indicator' => 'Mjerite Uspjeh Kampanje',
+            'title' => 'Impresije',
+            'description' => 'Po završetku svake kampanje, šaljemo vam detaljan postbuy report.',
+        ]);
+        $this->addTranslation($a, new HomepageAnalyticsTranslation(), 'en', [
+            'indicator' => 'Measure Campaign Success',
+            'title' => 'Impressions',
+            'description' => 'After every campaign, we send you a detailed postbuy report.',
+        ]);
+        $manager->persist($a);
     }
 
     // ─── HOMEPAGE TRACKING FEATURES ──────────────────────────

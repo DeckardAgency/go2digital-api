@@ -10,6 +10,7 @@ use App\Entity\EsgPageContent;
 use App\Entity\HomepageBillboard;
 use App\Entity\HomepageCustomImage;
 use App\Entity\HomepageCustomSolution;
+use App\Entity\HomepageAnalytics;
 use App\Entity\HomepageHero;
 use App\Entity\HomepageHumanFocused;
 use App\Entity\HomepageRentalsImage;
@@ -44,6 +45,7 @@ class SingletonController extends AbstractController
         'homepage-custom-image' => HomepageCustomImage::class,
         'homepage-rentals-image' => HomepageRentalsImage::class,
         'homepage-why-section' => HomepageWhySection::class,
+        'homepage-analytics' => HomepageAnalytics::class,
         // Page content singletons
         'esg-page-content' => EsgPageContent::class,
         'blog-page-content' => BlogPageContent::class,
