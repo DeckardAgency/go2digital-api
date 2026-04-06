@@ -824,6 +824,7 @@ class AppFixtures extends Fixture
             ['integrations.hotjarId', ['value' => ''], 'integrations'],
             ['integrations.recaptchaSiteKey', ['value' => ''], 'integrations'],
             ['integrations.recaptchaSecretKey', ['value' => ''], 'integrations'],
+            ['integrations.mapboxAccessToken', ['value' => ''], 'integrations'],
             // SEO global defaults
             ['seo.siteName', ['value' => 'Go2Digital'], 'seo'],
             ['seo.titleSeparator', ['value' => '|'], 'seo'],
