@@ -103,6 +103,12 @@ class Totem
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $images = null;
 
+    #[ORM\Column(type: Types::FLOAT, nullable: true)]
+    private ?float $imageFocalX = 50;
+
+    #[ORM\Column(type: Types::FLOAT, nullable: true)]
+    private ?float $imageFocalY = 50;
+
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $floorPlans = null;
 
@@ -161,6 +167,10 @@ class Totem
     public function setLastSyncedAt(?\DateTimeImmutable $v): static { $this->lastSyncedAt = $v; return $this; }
     public function getImages(): ?array { return $this->images; }
     public function setImages(?array $v): static { $this->images = $v; return $this; }
+    public function getImageFocalX(): ?float { return $this->imageFocalX; }
+    public function setImageFocalX(?float $v): static { $this->imageFocalX = $v; return $this; }
+    public function getImageFocalY(): ?float { return $this->imageFocalY; }
+    public function setImageFocalY(?float $v): static { $this->imageFocalY = $v; return $this; }
     public function getFloorPlans(): ?array { return $this->floorPlans; }
     public function setFloorPlans(?array $v): static { $this->floorPlans = $v; return $this; }
     public function getTotemScreens(): ?array { return $this->totemScreens; }
