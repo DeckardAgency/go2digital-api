@@ -109,6 +109,12 @@ class Totem
     #[ORM\Column(type: Types::FLOAT, nullable: true)]
     private ?float $imageFocalY = 50;
 
+    #[ORM\Column(type: Types::FLOAT, nullable: true)]
+    private ?float $imageFocalMobileX = 50;
+
+    #[ORM\Column(type: Types::FLOAT, nullable: true)]
+    private ?float $imageFocalMobileY = 50;
+
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $floorPlans = null;
 
@@ -171,6 +177,10 @@ class Totem
     public function setImageFocalX(?float $v): static { $this->imageFocalX = $v; return $this; }
     public function getImageFocalY(): ?float { return $this->imageFocalY; }
     public function setImageFocalY(?float $v): static { $this->imageFocalY = $v; return $this; }
+    public function getImageFocalMobileX(): ?float { return $this->imageFocalMobileX; }
+    public function setImageFocalMobileX(?float $v): static { $this->imageFocalMobileX = $v; return $this; }
+    public function getImageFocalMobileY(): ?float { return $this->imageFocalMobileY; }
+    public function setImageFocalMobileY(?float $v): static { $this->imageFocalMobileY = $v; return $this; }
     public function getFloorPlans(): ?array { return $this->floorPlans; }
     public function setFloorPlans(?array $v): static { $this->floorPlans = $v; return $this; }
     public function getTotemScreens(): ?array { return $this->totemScreens; }

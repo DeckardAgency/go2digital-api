@@ -72,6 +72,8 @@ class LocationController extends AbstractController
                     'totem_motion' => $totem->getTotemMotion(),
                     'image_focal_x' => $totem->getImageFocalX() ?? 50,
                     'image_focal_y' => $totem->getImageFocalY() ?? 50,
+                    'image_focal_mobile_x' => $totem->getImageFocalMobileX() ?? 50,
+                    'image_focal_mobile_y' => $totem->getImageFocalMobileY() ?? 50,
                 ];
             }
 
@@ -379,6 +381,8 @@ class LocationController extends AbstractController
             'totemScreens' => $t->getTotemScreens(),
             'imageFocalX' => $t->getImageFocalX() ?? 50,
             'imageFocalY' => $t->getImageFocalY() ?? 50,
+            'imageFocalMobileX' => $t->getImageFocalMobileX() ?? 50,
+            'imageFocalMobileY' => $t->getImageFocalMobileY() ?? 50,
             'lastSyncedAt' => $t->getLastSyncedAt()?->format('c'),
         ]);
     }
@@ -402,7 +406,7 @@ class LocationController extends AbstractController
             'headerImage', 'isInstalled', 'isBigScreen', 'screenWidth', 'screenHeight',
             'postbuyCategory', 'adDuration', 'description', 'descriptionEn',
             'reach', 'videoUrl', 'totemMotion', 'sortOrder', 'isPublished',
-            'imageFocalX', 'imageFocalY',
+            'imageFocalX', 'imageFocalY', 'imageFocalMobileX', 'imageFocalMobileY',
         ];
 
         foreach ($editableFields as $field) {
