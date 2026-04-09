@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\City;
+use App\Entity\SeoMetadata;
 use App\Entity\SyncLog;
 use App\Entity\Totem;
 use App\Service\LocationSyncService;
@@ -74,6 +75,7 @@ class LocationController extends AbstractController
                     'image_focal_y' => $totem->getImageFocalY() ?? 50,
                     'image_focal_mobile_x' => $totem->getImageFocalMobileX() ?? 50,
                     'image_focal_mobile_y' => $totem->getImageFocalMobileY() ?? 50,
+                    'seo' => $this->serializeSeo($totem->getSeoMetadata()),
                 ];
             }
 
@@ -425,5 +427,32 @@ class LocationController extends AbstractController
         $this->em->flush();
 
         return $this->json(['success' => true]);
+    }
+
+    private function serializeSeo(?SeoMetadata $seo): ?array
+    {
+        if (!$seo) return null;
+
+        $translations = [];
+        foreach (['hr', 'en'] as $locale) {
+            $t = $seo->translate($locale);
+            if ($t) {
+                $translations[$locale] = [
+                    'title' => $t->getTitle(),
+                    'description' => $t->getDescription(),
+                    'keywords' => $t->getKeywords(),
+                    'ogTitle' => $t->getOgTitle(),
+                    'ogDescription' => $t->getOgDescription(),
+                ];
+            }
+        }
+
+        return [
+            'ogType' => $seo->getOgType(),
+            'twitterCard' => $seo->getTwitterCard(),
+            'canonicalUrl' => $seo->getCanonicalUrl(),
+            'robots' => $seo->getRobotsDirective(),
+            'translations' => $translations,
+        ];
     }
 }

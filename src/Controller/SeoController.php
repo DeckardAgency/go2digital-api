@@ -223,6 +223,53 @@ class SeoController extends AbstractController
         }
     }
 
+    /**
+     * Public SEO data for a singleton page (no auth required).
+     * Defined before the entity route so "singleton" isn't captured as {entityType}.
+     */
+    #[Route('/api/seo-public/singleton/{pageType}', name: 'api_seo_public_singleton_get', methods: ['GET'])]
+    public function getSingletonPublic(string $pageType): JsonResponse
+    {
+        $entity = $this->findSingleton($pageType);
+        $seo = $entity->getSeoMetadata();
+
+        return $this->json($this->serializeSeoPublic($seo));
+    }
+
+    /**
+     * Public SEO data for an entity (no auth required).
+     */
+    #[Route('/api/seo-public/{entityType}/{entityId}', name: 'api_seo_public_get', methods: ['GET'])]
+    public function getPublic(string $entityType, string $entityId): JsonResponse
+    {
+        $entity = $this->findEntity($entityType, $entityId);
+        $seo = $entity->getSeoMetadata();
+
+        return $this->json($this->serializeSeoPublic($seo));
+    }
+
+    private function serializeSeoPublic(?SeoMetadata $seo): array
+    {
+        if (!$seo) return ['translations' => []];
+
+        $translations = [];
+        foreach (['hr', 'en'] as $locale) {
+            $t = $seo->translate($locale);
+            if ($t) {
+                $translations[$locale] = $this->serializeTranslation($t);
+            }
+        }
+
+        return [
+            'ogType' => $seo->getOgType(),
+            'twitterCard' => $seo->getTwitterCard(),
+            'canonicalUrl' => $seo->getCanonicalUrl(),
+            'robots' => $seo->getRobotsDirective(),
+            'ogImageUrl' => $seo->getOgImage() ? '/storage/media/' . $seo->getOgImage()->getPath() : null,
+            'translations' => $translations,
+        ];
+    }
+
     private function findSingleton(string $pageType): object
     {
         $class = self::SINGLETON_MAP[$pageType] ?? null;
