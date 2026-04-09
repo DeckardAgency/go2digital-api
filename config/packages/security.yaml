@@ -35,6 +35,8 @@ security:
         - { path: ^/api$, roles: PUBLIC_ACCESS }
         # GET requests are public (Nuxt frontend reads published content)
         - { path: ^/api, roles: PUBLIC_ACCESS, methods: [GET] }
+        # Public POST endpoints (no auth needed)
+        - { path: ^/api/locations/export-pdf$, roles: PUBLIC_ACCESS }
         # All write operations require authentication
         - { path: ^/api, roles: ROLE_EDITOR }
 
