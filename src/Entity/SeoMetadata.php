@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -60,6 +61,7 @@ class SeoMetadata
 
     /** @var Collection<int, SeoMetadataTranslation> */
     #[ORM\OneToMany(targetEntity: SeoMetadataTranslation::class, mappedBy: 'translatable', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ApiProperty(writable: false)]
     private Collection $translations;
 
     public function __construct()

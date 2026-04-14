@@ -41,6 +41,7 @@ class EsgPageContent
 
     /** @var Collection<int, EsgPageContentTranslation> */
     #[ORM\OneToMany(targetEntity: EsgPageContentTranslation::class, mappedBy: 'translatable', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ApiProperty(writable: false)]
     private Collection $translations;
 
     public function __construct()

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -57,6 +58,7 @@ class BlogCategory
 
     /** @var Collection<int, BlogCategoryTranslation> */
     #[ORM\OneToMany(targetEntity: BlogCategoryTranslation::class, mappedBy: 'translatable', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ApiProperty(writable: false)]
     private Collection $translations;
 
     /** @var Collection<int, BlogPost> */

@@ -29,6 +29,7 @@ class HomepageTextAnimation
 
     /** @var Collection<int, HomepageTextAnimationTranslation> */
     #[ORM\OneToMany(targetEntity: HomepageTextAnimationTranslation::class, mappedBy: 'translatable', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ApiProperty(writable: false)]
     private Collection $translations;
 
     public function __construct()

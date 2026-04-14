@@ -37,6 +37,7 @@ class HomepageHero
 
     /** @var Collection<int, HomepageHeroTranslation> */
     #[ORM\OneToMany(targetEntity: HomepageHeroTranslation::class, mappedBy: 'translatable', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ApiProperty(writable: false)]
     private Collection $translations;
 
     public function __construct()

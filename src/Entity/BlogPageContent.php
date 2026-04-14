@@ -33,6 +33,7 @@ class BlogPageContent
 
     /** @var Collection<int, BlogPageContentTranslation> */
     #[ORM\OneToMany(targetEntity: BlogPageContentTranslation::class, mappedBy: 'translatable', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ApiProperty(writable: false)]
     private Collection $translations;
 
     public function __construct()

@@ -33,6 +33,7 @@ class TeamPageContent
 
     /** @var Collection<int, TeamPageContentTranslation> */
     #[ORM\OneToMany(targetEntity: TeamPageContentTranslation::class, mappedBy: 'translatable', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ApiProperty(writable: false)]
     private Collection $translations;
 
     public function __construct()
