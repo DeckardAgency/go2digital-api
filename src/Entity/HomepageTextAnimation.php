@@ -27,6 +27,9 @@ class HomepageTextAnimation
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private ?Uuid $id = null;
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $typographyMap = null;
+
     /** @var Collection<int, HomepageTextAnimationTranslation> */
     #[ORM\OneToMany(targetEntity: HomepageTextAnimationTranslation::class, mappedBy: 'translatable', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ApiProperty(writable: false)]
@@ -40,5 +43,17 @@ class HomepageTextAnimation
     public function getId(): ?Uuid
     {
         return $this->id;
+    }
+
+    public function getTypographyMap(): ?array
+    {
+        return $this->typographyMap;
+    }
+
+    public function setTypographyMap(?array $typographyMap): static
+    {
+        $this->typographyMap = $typographyMap;
+
+        return $this;
     }
 }

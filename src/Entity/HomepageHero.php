@@ -27,6 +27,9 @@ class HomepageHero
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private ?Uuid $id = null;
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $typographyMap = null;
+
     #[ORM\ManyToOne(targetEntity: Media::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Media $video = null;
@@ -70,6 +73,18 @@ class HomepageHero
     public function setMobileVideo(?Media $mobileVideo): static
     {
         $this->mobileVideo = $mobileVideo;
+
+        return $this;
+    }
+
+    public function getTypographyMap(): ?array
+    {
+        return $this->typographyMap;
+    }
+
+    public function setTypographyMap(?array $typographyMap): static
+    {
+        $this->typographyMap = $typographyMap;
 
         return $this;
     }

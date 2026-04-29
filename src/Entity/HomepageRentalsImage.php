@@ -27,6 +27,9 @@ class HomepageRentalsImage
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private ?Uuid $id = null;
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $typographyMap = null;
+
     #[ORM\ManyToOne(targetEntity: Media::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Media $image = null;
@@ -54,6 +57,18 @@ class HomepageRentalsImage
     public function setImage(?Media $image): static
     {
         $this->image = $image;
+
+        return $this;
+    }
+
+    public function getTypographyMap(): ?array
+    {
+        return $this->typographyMap;
+    }
+
+    public function setTypographyMap(?array $typographyMap): static
+    {
+        $this->typographyMap = $typographyMap;
 
         return $this;
     }

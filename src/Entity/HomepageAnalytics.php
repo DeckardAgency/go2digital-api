@@ -27,6 +27,9 @@ class HomepageAnalytics
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private ?Uuid $id = null;
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $typographyMap = null;
+
     /** @var Collection<int, HomepageAnalyticsTranslation> */
     #[ORM\OneToMany(targetEntity: HomepageAnalyticsTranslation::class, mappedBy: 'translatable', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ApiProperty(writable: false)]
@@ -38,4 +41,16 @@ class HomepageAnalytics
     }
 
     public function getId(): ?Uuid { return $this->id; }
+
+    public function getTypographyMap(): ?array
+    {
+        return $this->typographyMap;
+    }
+
+    public function setTypographyMap(?array $typographyMap): static
+    {
+        $this->typographyMap = $typographyMap;
+
+        return $this;
+    }
 }

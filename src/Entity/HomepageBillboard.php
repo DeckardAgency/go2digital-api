@@ -27,6 +27,9 @@ class HomepageBillboard
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private ?Uuid $id = null;
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $typographyMap = null;
+
     #[ORM\ManyToOne(targetEntity: Media::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Media $image = null;
@@ -69,6 +72,18 @@ class HomepageBillboard
     public function setButtonUrl(?string $buttonUrl): static
     {
         $this->buttonUrl = $buttonUrl;
+
+        return $this;
+    }
+
+    public function getTypographyMap(): ?array
+    {
+        return $this->typographyMap;
+    }
+
+    public function setTypographyMap(?array $typographyMap): static
+    {
+        $this->typographyMap = $typographyMap;
 
         return $this;
     }

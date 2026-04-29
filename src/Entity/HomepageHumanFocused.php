@@ -27,6 +27,9 @@ class HomepageHumanFocused
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private ?Uuid $id = null;
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $typographyMap = null;
+
     /** @var Collection<int, HomepageHumanFocusedTranslation> */
     #[ORM\OneToMany(targetEntity: HomepageHumanFocusedTranslation::class, mappedBy: 'translatable', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ApiProperty(writable: false)]
@@ -40,5 +43,17 @@ class HomepageHumanFocused
     public function getId(): ?Uuid
     {
         return $this->id;
+    }
+
+    public function getTypographyMap(): ?array
+    {
+        return $this->typographyMap;
+    }
+
+    public function setTypographyMap(?array $typographyMap): static
+    {
+        $this->typographyMap = $typographyMap;
+
+        return $this;
     }
 }
