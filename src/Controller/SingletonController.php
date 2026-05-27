@@ -166,8 +166,8 @@ class SingletonController extends AbstractController
         }
 
         $file = $request->files->get('file');
-        if (!$file) {
-            return $this->json(['error' => 'No file provided'], Response::HTTP_BAD_REQUEST);
+        if ($err = MediaLibraryService::validateUploadedFile($file)) {
+            return $this->json(['error' => $err['message']], $err['status']);
         }
 
         $collection = str_contains($type, 'homepage') ? 'homepage' : 'general';

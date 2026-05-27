@@ -22,6 +22,40 @@ class MediaLibraryService
     ) {
     }
 
+    /**
+     * Validate an uploaded file before reading its contents. Returns null when the file is
+     * usable, otherwise ['message' => string, 'status' => int] suitable for a JSON response.
+     *
+     * Catches the case where PHP's upload limits were exceeded, which leaves the UploadedFile
+     * with an empty temp path — subsequently calling getMimeType() on such a file throws
+     * Symfony\Component\Mime\Exception\InvalidArgumentException ("The \"\" file does not exist...").
+     */
+    public static function validateUploadedFile(?UploadedFile $file): ?array
+    {
+        if (null === $file) {
+            return ['message' => 'No file provided.', 'status' => 400];
+        }
+
+        if ($file->isValid()) {
+            return null;
+        }
+
+        $code = $file->getError();
+        $message = match ($code) {
+            \UPLOAD_ERR_INI_SIZE => 'Uploaded file exceeds the server upload limit (upload_max_filesize).',
+            \UPLOAD_ERR_FORM_SIZE => 'Uploaded file exceeds the form-defined size limit.',
+            \UPLOAD_ERR_PARTIAL => 'The upload was interrupted; please retry.',
+            \UPLOAD_ERR_NO_FILE => 'No file was uploaded.',
+            \UPLOAD_ERR_NO_TMP_DIR => 'Server is missing a temporary directory for uploads.',
+            \UPLOAD_ERR_CANT_WRITE => 'Server failed to write the uploaded file to disk.',
+            \UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload.',
+            default => 'Upload failed.',
+        };
+        $status = \in_array($code, [\UPLOAD_ERR_INI_SIZE, \UPLOAD_ERR_FORM_SIZE], true) ? 413 : 400;
+
+        return ['message' => $message, 'status' => $status];
+    }
+
     public function upload(UploadedFile $file, string $collection, ?User $user = null): Media
     {
         $originalFilename = $file->getClientOriginalName();

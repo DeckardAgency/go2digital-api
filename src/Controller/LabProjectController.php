@@ -144,8 +144,8 @@ class LabProjectController extends AbstractController
         }
 
         $file = $request->files->get('image');
-        if (!$file) {
-            return $this->json(['error' => 'No image file provided'], Response::HTTP_BAD_REQUEST);
+        if ($err = MediaLibraryService::validateUploadedFile($file)) {
+            return $this->json(['error' => $err['message']], $err['status']);
         }
 
         $media = $mediaLibrary->upload($file, 'labs');

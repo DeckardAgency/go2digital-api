@@ -117,8 +117,8 @@ class TypographyController extends AbstractController
     public function uploadFont(Request $request, MediaLibraryService $mediaLibrary): JsonResponse
     {
         $file = $request->files->get('file');
-        if (!$file) {
-            return $this->json(['error' => 'No file provided'], Response::HTTP_BAD_REQUEST);
+        if ($err = MediaLibraryService::validateUploadedFile($file)) {
+            return $this->json(['error' => $err['message']], $err['status']);
         }
 
         $ext = strtolower($file->getClientOriginalExtension() ?: $file->guessExtension() ?? '');
