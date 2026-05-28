@@ -36,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Patch(security: "is_granted('ROLE_EDITOR')"),
         new Delete(security: "is_granted('ROLE_ADMIN')"),
     ],
-    order: ['date' => 'DESC', 'sortOrder' => 'ASC'],
+    order: ['sortOrder' => 'ASC', 'date' => 'DESC'],
 )]
 #[ApiFilter(SearchFilter::class, properties: ['slug' => 'exact', 'category.slug' => 'exact', 'status' => 'exact'])]
 #[ApiFilter(BooleanFilter::class, properties: ['featured'])]
